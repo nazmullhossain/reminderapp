@@ -14,6 +14,7 @@ class AlarmRingScreen extends StatefulWidget {
 
 class _AlarmRingScreenState extends State<AlarmRingScreen> {
   late DateTime? originalDateTime;
+  int powerButtonCounter = 0;
 
   @override
   void initState() {
@@ -32,9 +33,14 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
   Future<void> powerButtonEventListen()async{
     const MethodChannel channel = MethodChannel('com.wintep.notepad_alarm.powerButton');
     channel.setMethodCallHandler((call) async {
-      if (call.method == 'powerButtonPressed') {
-        debugPrint('Power button pressed');
-        snoozeAlarm();
+      if (call.method == 'screenTurnedOff') {
+        debugPrint('Power button pressed (screenTurnedOff)');
+        if(powerButtonCounter!=0){
+          snoozeAlarm();
+        }
+        powerButtonCounter++;
+      }else if(call.method == 'screenTurnedOn'){
+        debugPrint('Power button pressed (screenTurnedOn)');
       }
     });
   }

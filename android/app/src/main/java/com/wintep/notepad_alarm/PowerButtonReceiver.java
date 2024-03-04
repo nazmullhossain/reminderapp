@@ -19,9 +19,14 @@ public class PowerButtonReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-            // Send message to Flutter when power button is pressed
-            methodChannel.invokeMethod("powerButtonPressed", null);
+        if (intent.getAction() != null) {
+            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                // Send message to Flutter when the screen is turned off
+                methodChannel.invokeMethod("screenTurnedOff", null);
+            } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                // Send message to Flutter when the screen is turned on
+                methodChannel.invokeMethod("screenTurnedOn", null);
+            }
         }
     }
 
