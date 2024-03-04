@@ -62,6 +62,7 @@ class _AlarmHomeScreenState extends State<AlarmHomeScreen> {
       ),
     );
     loadAlarms();
+    getSavingDateList();
   }
 
   Future<void> navigateToAlarmScreen(AlarmSettings? settings) async {

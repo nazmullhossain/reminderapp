@@ -152,6 +152,8 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
 
   Future<void> stopAlarm()async{
     late DateTime dateTime;
+    final int day = widget.alarmSettings.notificationBody.isEmpty ? 1 : 365;
+    debugPrint('Day: $day');
     if (originalDateTime != null) {
       dateTime = DateTime(
         originalDateTime!.year,
@@ -161,10 +163,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
         originalDateTime!.minute,
         0,
         0,
-      ).add(Duration(
-          days: widget.alarmSettings.notificationBody.isEmpty
-              ? 1
-              : 365));
+      ).add(Duration(days: day));
     } else {
       dateTime = DateTime(
         widget.alarmSettings.dateTime.year,
@@ -174,10 +173,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
         widget.alarmSettings.dateTime.minute,
         0,
         0,
-      ).add(Duration(
-          days: widget.alarmSettings.notificationBody.isEmpty
-              ? 1
-              : 365));
+      ).add(Duration(days: day));
     }
     Alarm.set(
       alarmSettings: widget.alarmSettings.copyWith(
