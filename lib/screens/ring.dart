@@ -2,7 +2,6 @@ import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import '../utils/date_time_converter.dart';
 import '../utils/local_storage.dart';
 
 class AlarmRingScreen extends StatefulWidget {
@@ -26,7 +25,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
   Future<void> onInit() async {
     final String? dateTimeString = await getData(widget.alarmSettings.id.toString());
     if (dateTimeString != null) {
-      originalDateTime = parseStringToDateTime(dateTimeString);
+      originalDateTime = DateTime.parse(dateTimeString);
     }
   }
 
@@ -125,6 +124,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
         previousAlarmFound = true;
       }
     }
+    debugPrint('previousAlarmFound::: $previousAlarmFound');
     if(previousAlarmFound == true){
       stopAlarm();
     }else{
@@ -135,10 +135,10 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
             now.month,
             now.day,
             now.hour,
-            now.minute+5,
+            now.minute,
             0,
             0,
-          ),
+          ).add(const Duration(minutes: 5)),
         ),
       ).then((_) => Navigator.pop(context));
     }
@@ -180,7 +180,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
       ),
     ).then((_) async {
       await setData(widget.alarmSettings.id.toString(),
-          formatDateTimeWithLocalTimeZone(dateTime))
+          dateTime.toIso8601String())
           .then((value) => Navigator.pop(context));
     });
   }

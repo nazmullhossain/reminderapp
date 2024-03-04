@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../constants/app_string.dart';
 import '../model/saving_date_model.dart';
-import '../utils/date_time_converter.dart';
+import '../utils/app_toast.dart';
 import '../utils/local_storage.dart';
 
 class AlarmEditScreen extends StatefulWidget {
@@ -112,7 +112,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
           alarms[i].dateTime.day == selectedDate!.day &&
           alarms[i].dateTime.hour == selectedDate!.hour &&
           alarms[i].dateTime.minute == selectedDate!.minute){
-        showToast('You have already an Event with this date');
+        showToast('You have already an alarm of this date');
         return null;
       }
     }
@@ -137,7 +137,9 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
       savingDateTime: DateFormat('dd MMM - hh:mm aa').format(DateTime.now())
     ));
 
-    await setData(uniqueId.toString(), formatDateTimeWithLocalTimeZone(selectedDate!));
+    //Save original date time
+    await setData(uniqueId.toString(), selectedDate!.toIso8601String());
+    //save alarm saving date time
     await setData(LocalStorageKey.savingDateKey, savingDateModelToJson(savingDateList));
     return alarmSettings;
   }
