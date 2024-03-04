@@ -117,37 +117,33 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
   }
 
   void snoozeAlarm(){
-    final now = DateTime.now();
-    bool previousAlarmFound = false;
+    DateTime snoozeDate = DateTime.now().add(const Duration(minutes: 5));
     final List<AlarmSettings> alarms = Alarm.getAlarms();
+    alarms.sort((a, b) => a.dateTime.isBefore(b.dateTime) ? 0 : 1);
 
     for(int i=0; i<alarms.length; i++){
-      if(alarms[i].dateTime.year == now.year &&
-          alarms[i].dateTime.month == now.month &&
-          alarms[i].dateTime.day == now.day &&
-          alarms[i].dateTime.hour == now.hour &&
-          alarms[i].dateTime.minute == now.minute){
-        previousAlarmFound = true;
+      if(alarms[i].dateTime.year == snoozeDate.year &&
+          alarms[i].dateTime.month == snoozeDate.month &&
+          alarms[i].dateTime.day == snoozeDate.day &&
+          alarms[i].dateTime.hour == snoozeDate.hour &&
+          alarms[i].dateTime.minute == snoozeDate.minute){
+        snoozeDate.add(const Duration(minutes: 5));
       }
     }
-    debugPrint('previousAlarmFound::: $previousAlarmFound');
-    if(previousAlarmFound == true){
-      stopAlarm();
-    }else{
+    debugPrint('Snooze Minute: ${snoozeDate.minute}');
       Alarm.set(
         alarmSettings: widget.alarmSettings.copyWith(
           dateTime: DateTime(
-            now.year,
-            now.month,
-            now.day,
-            now.hour,
-            now.minute,
+            snoozeDate.year,
+            snoozeDate.month,
+            snoozeDate.day,
+            snoozeDate.hour,
+            snoozeDate.minute+5,
             0,
             0,
-          ).add(const Duration(minutes: 5)),
+          ),
         ),
       ).then((_) => Navigator.pop(context));
-    }
   }
 
   Future<void> stopAlarm()async{
