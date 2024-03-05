@@ -138,7 +138,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
             snoozeDate.month,
             snoozeDate.day,
             snoozeDate.hour,
-            snoozeDate.minute+5,
+            snoozeDate.minute,
             0,
             0,
           ),

@@ -23,6 +23,10 @@ if (flutterVersionName == null) {
 }
 
 android {
+    lintOptions {
+        baseline file("lint-baseline.xml")
+    }
+
     namespace "com.wintep.notepad_alarm"
     compileSdk 34
     ndkVersion flutter.ndkVersion
@@ -50,4 +54,7 @@ android {
 
 flutter {
     source '../..'
+}
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
