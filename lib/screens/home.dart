@@ -19,12 +19,12 @@ class AlarmHomeScreen extends StatefulWidget {
 
 class _AlarmHomeScreenState extends State<AlarmHomeScreen> {
   late List<AlarmSettings> alarms;
-  static StreamSubscription<AlarmSettings>? subscription;
+  StreamSubscription<AlarmSettings>? subscription;
 
   List<int> selectedItems = [];
   bool selectMode = false;
 
-  List<SavingDateModel> savingDateList = [];
+  static List<SavingDateModel> savingDateList = [];
 
   @override
   void initState() {

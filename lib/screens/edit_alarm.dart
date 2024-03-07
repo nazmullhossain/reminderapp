@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../constants/app_string.dart';
 import '../model/saving_date_model.dart';
 import '../utils/app_toast.dart';
+import '../utils/formater.dart';
 import '../utils/local_storage.dart';
 
 class AlarmEditScreen extends StatefulWidget {
@@ -17,7 +18,7 @@ class AlarmEditScreen extends StatefulWidget {
 
 class _AlarmEditScreenState extends State<AlarmEditScreen> {
   final TextEditingController note = TextEditingController();
-  late DateTime? selectedDate;
+  DateTime? selectedDate;
   late TimeOfDay? selectedTime;
   late bool loopAudio;
   late bool vibrate;
@@ -31,14 +32,13 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
   @override
   void initState() {
     super.initState();
-    selectedDate = DateTime.now().add(const Duration(minutes: 1));
-    selectedTime =
-        TimeOfDay(hour: selectedDate!.hour, minute: selectedDate!.minute);
+    final DateTime dateTime = DateTime.now().add(const Duration(minutes: 1));
+    selectedTime = TimeOfDay(hour: dateTime.hour, minute: dateTime.minute);
     loopAudio = true;
     vibrate = true;
-    volume = 0.7;
+    volume = 0.8;
     assetAudio = 'assets/mp3/alarm_2.mp3';
-    title = DateFormat('dd MMM - hh:mm aa').format(selectedDate!);
+    title = '';
     body = AppString.alarmBody;
     getSavingDateList();
   }
@@ -62,22 +62,9 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
       context: context,
     ).then((value) {
       if (value != null) {
-        selectedTime = value;
+        setState(()=> selectedTime = value);
       }
     });
-
-    if (selectedTime != null) {
-      setState(() {
-        final DateTime date = selectedDate ?? DateTime.now();
-        selectedDate = date.copyWith(
-          hour: selectedTime!.hour,
-          minute: selectedTime!.minute,
-          second: 0,
-          millisecond: 0,
-          microsecond: 0,
-        );
-      });
-    }
   }
 
   Future<void> pickDate() async {
@@ -86,12 +73,15 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 1825)),
-    ).then((value) => selectedDate = value ?? DateTime.now());
+    ).then((value) => setState(()=> selectedDate = value));
+  }
 
+  Future<AlarmSettings?> buildAlarmSettings() async {
+
+    DateTime date = selectedDate ?? DateTime.now();
     if (selectedTime != null) {
       setState(() {
-        final DateTime date = selectedDate ?? DateTime.now();
-        selectedDate = date.copyWith(
+        date = date.copyWith(
           hour: selectedTime!.hour,
           minute: selectedTime!.minute,
           second: 0,
@@ -100,18 +90,14 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
         );
       });
     }
-  }
-
-  Future<AlarmSettings?> buildAlarmSettings() async {
 
     final List<AlarmSettings> alarms = Alarm.getAlarms();
-
     for(int i=0; i<alarms.length; i++){
-      if(alarms[i].dateTime.year == selectedDate!.year &&
-          alarms[i].dateTime.month == selectedDate!.month &&
-          alarms[i].dateTime.day == selectedDate!.day &&
-          alarms[i].dateTime.hour == selectedDate!.hour &&
-          alarms[i].dateTime.minute == selectedDate!.minute){
+      if(alarms[i].dateTime.year == date.year &&
+          alarms[i].dateTime.month == date.month &&
+          alarms[i].dateTime.day == date.day &&
+          alarms[i].dateTime.hour == date.hour &&
+          alarms[i].dateTime.minute == date.minute){
         showToast('You have already an alarm of this date');
         return null;
       }
@@ -120,11 +106,12 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
     final int random = Random().nextInt(10000);
     final int id = DateTime.now().millisecondsSinceEpoch % 10000;
     final int uniqueId = id + random;
-    final title = DateFormat('dd MMM - hh:mm aa').format(selectedDate!);
+    final title = DateFormat(selectedDate!=null?'dd MMM - hh:mm aa': 'hh:mm aa').format(date);
+    debugPrint('title: $title');
 
     final alarmSettings = AlarmSettings(
       id: uniqueId,
-      dateTime: selectedDate!,
+      dateTime: date,
       loopAudio: loopAudio,
       vibrate: vibrate,
       volume: volume,
@@ -134,11 +121,11 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
     );
     savingDateList.add(SavingDateModel(
       id: uniqueId,
-      savingDateTime: DateFormat('dd MMM - hh:mm aa').format(DateTime.now())
+      savingDateTime: DateFormat('dd MMM - hh:mm aa').format(date)
     ));
 
     //Save original date time
-    await setData(uniqueId.toString(), selectedDate!.toIso8601String());
+    await setData(uniqueId.toString(), date.toIso8601String());
     //save alarm saving date time
     await setData(LocalStorageKey.savingDateKey, savingDateModelToJson(savingDateList));
     return alarmSettings;
@@ -206,9 +193,13 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
                   fillColor: Theme.of(context).secondaryHeaderColor,
                   child: Container(
                     margin: const EdgeInsets.all(20),
-                    child: Text(
-                      DateFormat('dd MMM, yy').format(selectedDate!),
-                      style: Theme.of(context).textTheme.headlineSmall!,
+                    child: FittedBox(
+                      child: Text(
+                        selectedDate!=null
+                            ? DateFormat('dd MMM, yy').format(selectedDate!)
+                            : 'Select Date',
+                        style: Theme.of(context).textTheme.headlineSmall!,
+                      ),
                     ),
                   ),
                 ),
@@ -221,7 +212,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
                   child: Container(
                     margin: const EdgeInsets.all(20),
                     child: Text(
-                      TimeOfDay.fromDateTime(selectedDate!).format(context),
+                      formatTimeOfDay(selectedTime!),
                       style: Theme.of(context).textTheme.headlineSmall!,
                     ),
                   ),
@@ -248,7 +239,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
                           audioPlayer.stop();
                         } else {
                           audioPlayer.play();
-                          audioPlayer.setVolume(volume ?? 0.7);
+                          audioPlayer.setVolume(volume ?? 0.8);
                         }
                       },
                       icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow));
@@ -282,7 +273,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
                   onChanged: (value) {
                     assetAudio = value!;
                     audioPlayer.open(Audio(assetAudio), autoStart: true);
-                    audioPlayer.setVolume(volume ?? 0.7);
+                    audioPlayer.setVolume(volume ?? 0.8);
                     setState(() {});
                   },
                 ),
@@ -331,7 +322,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
               Switch(
                 value: volume != null,
                 onChanged: (value) =>
-                    setState(() => volume = value ? 0.7 : null),
+                    setState(() => volume = value ? 0.8 : null),
               ),
             ],
           ),
@@ -342,7 +333,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Icon(
-                        volume! > 0.7
+                        volume! > 0.8
                             ? Icons.volume_up_rounded
                             : volume! > 0.1
                                 ? Icons.volume_down_rounded

@@ -33,6 +33,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
   Future<void> powerButtonEventListen()async{
     const MethodChannel channel = MethodChannel('com.wintep.notepad_alarm.powerButton');
     channel.setMethodCallHandler((call) async {
+      await Future.delayed(const Duration(seconds: 1));
       if (call.method == 'screenTurnedOff') {
         debugPrint('Power button pressed (screenTurnedOff)');
         if(powerButtonCounter!=0){
@@ -141,6 +142,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
             snoozeDate.minute,
             0,
             0,
+            0
           ),
         ),
       ).then((_) => Navigator.pop(context));
@@ -159,6 +161,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
         originalDateTime!.minute,
         0,
         0,
+        0
       ).add(Duration(days: day));
     } else {
       dateTime = DateTime(
@@ -169,12 +172,15 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
         widget.alarmSettings.dateTime.minute,
         0,
         0,
+        0
       ).add(Duration(days: day));
     }
     Alarm.set(
       alarmSettings: widget.alarmSettings.copyWith(
         dateTime: dateTime,
-        notificationTitle: DateFormat('dd MMM - hh:mm aa').format(dateTime)
+        notificationTitle: DateFormat(widget.alarmSettings.notificationTitle.length>8
+            ? 'dd MMM - hh:mm aa'
+            : 'hh:mm aa').format(dateTime)
       ),
     ).then((_) async {
       await setData(widget.alarmSettings.id.toString(),

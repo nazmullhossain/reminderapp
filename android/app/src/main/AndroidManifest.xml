@@ -19,10 +19,8 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"
-        tools:targetApi="m"
-        android:enableOnBackInvokedCallback="true">
-
-        <service android:name="com.gdelataillade.alarm.services.NotificationOnKillService"/>
+        tools:targetApi="m">
+        <service android:name="com.gdelataillade.alarm.services.NotificationOnKillService" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
