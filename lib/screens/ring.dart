@@ -118,7 +118,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
     );
   }
 
-  void snoozeAlarm(){
+  void snoozeAlarm()async{
     DateTime snoozeDate = DateTime.now().add(const Duration(minutes: 5));
     final List<AlarmSettings> alarms = Alarm.getAlarms();
     alarms.sort((a, b) => a.dateTime.isBefore(b.dateTime) ? 0 : 1);
@@ -133,8 +133,8 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
       }
     }
     debugPrint('Snooze Minute: ${snoozeDate.minute}');
-    Alarm.stop(widget.alarmSettings.id);
-      Alarm.set(
+    await Alarm.stop(widget.alarmSettings.id);
+      await Alarm.set(
         alarmSettings: widget.alarmSettings.copyWith(
           dateTime: DateTime(
             snoozeDate.year,
@@ -177,8 +177,8 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
         0
       ).add(Duration(days: day));
     }
-    Alarm.stop(widget.alarmSettings.id);
-    Alarm.set(
+    await Alarm.stop(widget.alarmSettings.id);
+    await Alarm.set(
       alarmSettings: widget.alarmSettings.copyWith(
         dateTime: dateTime,
         notificationTitle: DateFormat(widget.alarmSettings.notificationTitle.length>8
