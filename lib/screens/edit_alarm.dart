@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:alarm/alarm.dart';
+import 'package:alarm/model/alarm_settings.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -40,6 +41,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
     assetAudio = 'assets/mp3/alarm_2.mp3';
     title = '';
     body = AppString.alarmBody;
+    audioPlayer.open(Audio(assetAudio), autoStart: false);
     getSavingDateList();
   }
 

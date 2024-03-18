@@ -1,4 +1,5 @@
 import 'package:alarm/alarm.dart';
+import 'package:alarm/model/alarm_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -132,6 +133,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
       }
     }
     debugPrint('Snooze Minute: ${snoozeDate.minute}');
+    Alarm.stop(widget.alarmSettings.id);
       Alarm.set(
         alarmSettings: widget.alarmSettings.copyWith(
           dateTime: DateTime(
@@ -175,6 +177,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
         0
       ).add(Duration(days: day));
     }
+    Alarm.stop(widget.alarmSettings.id);
     Alarm.set(
       alarmSettings: widget.alarmSettings.copyWith(
         dateTime: dateTime,
