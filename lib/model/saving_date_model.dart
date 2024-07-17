@@ -2,10 +2,10 @@ import 'dart:convert';
 
 List<SavingDateModel> savingDateModelFromJson(String str) =>
     List<SavingDateModel>.from(
-        json.decode(str).map((x) => SavingDateModel.fromJson(x)));
+        jsonDecode(str).map((x) => SavingDateModel.fromJson(x)));
 
 String savingDateModelToJson(List<SavingDateModel> data) =>
-    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+    jsonEncode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class SavingDateModel {
   final int? id;

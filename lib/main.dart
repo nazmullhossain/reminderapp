@@ -10,8 +10,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   AppTheme.statusBarDesign;
-  await Alarm.init(showDebugLogs: true);
   await GetStorage.init();
+  await Alarm.init(showDebugLogs: true);
+
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,

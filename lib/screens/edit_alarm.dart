@@ -51,7 +51,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
     super.dispose();
   }
 
-  Future<void> getSavingDateList()async{
+  Future<void> getSavingDateList() async {
     final loginResponseFromLocal = await getData(LocalStorageKey.savingDateKey);
     if (loginResponseFromLocal != null) {
       savingDateList = savingDateModelFromJson(loginResponseFromLocal);
@@ -64,7 +64,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
       context: context,
     ).then((value) {
       if (value != null) {
-        setState(()=> selectedTime = value);
+        setState(() => selectedTime = value);
       }
     });
   }
@@ -75,15 +75,17 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 1825)),
-    ).then((value) => setState(()=> selectedDate = value));
+    ).then((value) => setState(() => selectedDate = value));
   }
 
   Future<AlarmSettings?> buildAlarmSettings() async {
-
     DateTime date = selectedDate ?? DateTime.now();
     if (selectedTime != null) {
       setState(() {
         date = date.copyWith(
+          year: date.year,
+          month: date.month,
+          day: date.day,
           hour: selectedTime!.hour,
           minute: selectedTime!.minute,
           second: 0,
@@ -94,12 +96,12 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
     }
 
     final List<AlarmSettings> alarms = Alarm.getAlarms();
-    for(int i=0; i<alarms.length; i++){
-      if(alarms[i].dateTime.year == date.year &&
+    for (int i = 0; i < alarms.length; i++) {
+      if (alarms[i].dateTime.year == date.year &&
           alarms[i].dateTime.month == date.month &&
           alarms[i].dateTime.day == date.day &&
           alarms[i].dateTime.hour == date.hour &&
-          alarms[i].dateTime.minute == date.minute){
+          alarms[i].dateTime.minute == date.minute) {
         showToast('You have already an alarm of this date');
         return null;
       }
@@ -108,7 +110,9 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
     final int random = Random().nextInt(10000);
     final int id = DateTime.now().millisecondsSinceEpoch % 10000;
     final int uniqueId = id + random;
-    final title = DateFormat(selectedDate!=null?'dd MMM - hh:mm aa': 'hh:mm aa').format(date);
+    final title =
+        DateFormat(selectedDate != null ? 'dd MMM - hh:mm aa' : 'hh:mm aa')
+            .format(date);
     debugPrint('title: $title');
 
     final alarmSettings = AlarmSettings(
@@ -122,22 +126,24 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
       notificationBody: note.text,
     );
     savingDateList.add(SavingDateModel(
-      id: uniqueId,
-      savingDateTime: DateFormat('dd MMM - hh:mm aa').format(date)
-    ));
+        id: uniqueId,
+        savingDateTime: DateFormat('dd MMM - hh:mm aa').format(date)));
 
     //Save original date time
     await setData(uniqueId.toString(), date.toIso8601String());
     //save alarm saving date time
-    await setData(LocalStorageKey.savingDateKey, savingDateModelToJson(savingDateList));
+    await setData(
+        LocalStorageKey.savingDateKey, savingDateModelToJson(savingDateList));
     return alarmSettings;
   }
 
   Future<void> saveAlarm() async {
     final AlarmSettings? settings = await buildAlarmSettings();
-    if(settings!=null){
-      Alarm.set(alarmSettings: settings).then((res) {
-        if (res) Navigator.pop(context, true);
+    if (settings != null) {
+      await Alarm.set(alarmSettings: settings).then((res) {
+        if (res) {
+          Navigator.pop(context, true);
+        }
       });
     }
   }
@@ -197,7 +203,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
                     margin: const EdgeInsets.all(20),
                     child: FittedBox(
                       child: Text(
-                        selectedDate!=null
+                        selectedDate != null
                             ? DateFormat('dd MMM, yy').format(selectedDate!)
                             : 'Select Date',
                         style: Theme.of(context).textTheme.headlineSmall!,

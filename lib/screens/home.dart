@@ -47,7 +47,7 @@ class _AlarmHomeScreenState extends State<AlarmHomeScreen> {
     });
   }
 
-  Future<void> getSavingDateList()async{
+  Future<void> getSavingDateList() async {
     final loginResponseFromLocal = await getData(LocalStorageKey.savingDateKey);
     if (loginResponseFromLocal != null) {
       savingDateList = savingDateModelFromJson(loginResponseFromLocal);
@@ -63,7 +63,7 @@ class _AlarmHomeScreenState extends State<AlarmHomeScreen> {
       ),
     );
     loadAlarms();
-    getSavingDateList();
+    await getSavingDateList();
   }
 
   Future<void> navigateToAlarmScreen(AlarmSettings? settings) async {
@@ -80,7 +80,7 @@ class _AlarmHomeScreenState extends State<AlarmHomeScreen> {
           );
         });
 
-    if (res != null && res == true){
+    if (res != null && res == true) {
       loadAlarms();
       getSavingDateList();
     }
@@ -100,14 +100,15 @@ class _AlarmHomeScreenState extends State<AlarmHomeScreen> {
   void deleteSelectedAlarm() {
     for (int id in selectedItems) {
       //delete saving time with id
-      for(int i=0; i<savingDateList.length; i++){
-        if(savingDateList[i].id==id){
-          savingDateList.removeWhere((element) => element.id==id);
+      for (int i = 0; i < savingDateList.length; i++) {
+        if (savingDateList[i].id == id) {
+          savingDateList.removeWhere((element) => element.id == id);
         }
       }
       removeData(id.toString());
       Alarm.stop(id);
-      setData(LocalStorageKey.savingDateKey, savingDateModelToJson(savingDateList));
+      setData(
+          LocalStorageKey.savingDateKey, savingDateModelToJson(savingDateList));
     }
     selectedItems = [];
     selectMode = false;
@@ -167,7 +168,8 @@ class _AlarmHomeScreenState extends State<AlarmHomeScreen> {
                 setState(() {});
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 decoration: BoxDecoration(
                     color: Theme.of(context).primaryColor.withOpacity(0.1),
                     borderRadius: const BorderRadius.all(Radius.circular(8))),
@@ -177,9 +179,9 @@ class _AlarmHomeScreenState extends State<AlarmHomeScreen> {
                   children: [
                     selectMode == true
                         ? Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: alarmItemLeadingIcon(alarms[index].id),
-                        )
+                            padding: const EdgeInsets.only(right: 8),
+                            child: alarmItemLeadingIcon(alarms[index].id),
+                          )
                         : const SizedBox.shrink(),
                     Expanded(
                       child: Column(
@@ -193,8 +195,10 @@ class _AlarmHomeScreenState extends State<AlarmHomeScreen> {
                             trimLength: 100,
                             trimCollapsedText: 'more',
                             trimExpandedText: 'less',
-                            moreStyle: const TextStyle(color: AppColor.primaryColor, fontSize: 16),
-                            lessStyle: const TextStyle(color: AppColor.primaryColor, fontSize: 16),
+                            moreStyle: const TextStyle(
+                                color: AppColor.primaryColor, fontSize: 16),
+                            lessStyle: const TextStyle(
+                                color: AppColor.primaryColor, fontSize: 16),
                             style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w400,
@@ -260,11 +264,11 @@ class _AlarmHomeScreenState extends State<AlarmHomeScreen> {
     }
   }
 
-  String getSavingDate(int alarmId){
+  String getSavingDate(int alarmId) {
     String savingDate = 'N/A';
-    for(int i=0; i<savingDateList.length; i++){
-      if(savingDateList[i].id==alarmId){
-        savingDate = savingDateList[i].savingDateTime??'N/A';
+    for (int i = 0; i < savingDateList.length; i++) {
+      if (savingDateList[i].id == alarmId) {
+        savingDate = savingDateList[i].savingDateTime ?? 'N/A';
         break;
       }
     }
