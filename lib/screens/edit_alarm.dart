@@ -110,9 +110,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
     final int random = Random().nextInt(10000);
     final int id = DateTime.now().millisecondsSinceEpoch % 10000;
     final int uniqueId = id + random;
-    final title =
-        DateFormat(selectedDate != null ? 'dd MMM - hh:mm aa' : 'hh:mm aa')
-            .format(date);
+    final title = DateFormat('hh:mm aa').format(date);
     debugPrint('title: $title');
 
     final alarmSettings = AlarmSettings(
@@ -126,8 +124,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
       notificationBody: note.text,
     );
     savingDateList.add(SavingDateModel(
-        id: uniqueId,
-        savingDateTime: DateFormat('dd MMM - hh:mm aa').format(date)));
+        id: uniqueId, savingDateTime: DateFormat('dd MMM').format(date)));
 
     //Save original date time
     await setData(uniqueId.toString(), date.toIso8601String());
