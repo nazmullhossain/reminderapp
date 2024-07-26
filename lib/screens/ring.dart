@@ -40,7 +40,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
       if (call.method == 'screenTurnedOff') {
         debugPrint('Power button pressed (screenTurnedOff)');
         if (powerButtonCounter != 0) {
-          snoozeAlarm();
+          await stopAlarm();
         }
         powerButtonCounter++;
       } else if (call.method == 'screenTurnedOn') {
@@ -72,9 +72,6 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // const Text("🔔",
-              //     textAlign: TextAlign.center,
-              //     style: TextStyle(fontSize: 40, color: Colors.white)),
               Expanded(
                 child: Center(
                   child: SingleChildScrollView(
@@ -94,7 +91,8 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(left: 32, right: 32, bottom: 48),
-        child: RawMaterialButton(
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
           onPressed: stopAlarm,
           child: Text(
             "STOP",
@@ -108,54 +106,59 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
     );
   }
 
-  Future<void> snoozeAlarm() async {
-    final DateTime snoozeDate = DateTime.now().add(const Duration(minutes: 5));
-    final List<AlarmSettings> alarms = Alarm.getAlarms();
-    alarms.sort((a, b) => a.dateTime.isBefore(b.dateTime) ? 0 : 1);
+  // Future<void> snoozeAlarm() async {
+  //   final DateTime snoozeDate = DateTime.now().add(const Duration(minutes: 5));
+  //   final List<AlarmSettings> alarms = Alarm.getAlarms();
+  //   alarms.sort((a, b) => a.dateTime.isBefore(b.dateTime) ? 0 : 1);
 
-    for (int i = 0; i < alarms.length; i++) {
-      if (alarms[i].dateTime.year == snoozeDate.year &&
-          alarms[i].dateTime.month == snoozeDate.month &&
-          alarms[i].dateTime.day == snoozeDate.day &&
-          alarms[i].dateTime.hour == snoozeDate.hour &&
-          alarms[i].dateTime.minute == snoozeDate.minute) {
-        snoozeDate.add(const Duration(minutes: 5));
-      }
-    }
-    debugPrint('Snooze Minute: ${snoozeDate.minute}');
-    await Alarm.stop(widget.alarmSettings.id);
-    await Alarm.set(
-      alarmSettings: widget.alarmSettings.copyWith(
-        dateTime: DateTime(snoozeDate.year, snoozeDate.month, snoozeDate.day,
-            snoozeDate.hour, snoozeDate.minute, 0, 0, 0),
-      ),
-    ).then((_) => Navigator.pop(context));
-  }
+  //   for (int i = 0; i < alarms.length; i++) {
+  //     if (alarms[i].dateTime.year == snoozeDate.year &&
+  //         alarms[i].dateTime.month == snoozeDate.month &&
+  //         alarms[i].dateTime.day == snoozeDate.day &&
+  //         alarms[i].dateTime.hour == snoozeDate.hour &&
+  //         alarms[i].dateTime.minute == snoozeDate.minute) {
+  //       snoozeDate.add(const Duration(minutes: 5));
+  //     }
+  //   }
+  //   debugPrint('Snooze Minute: ${snoozeDate.minute}');
+  //   await Alarm.stop(widget.alarmSettings.id);
+  //   await Alarm.set(
+  //     alarmSettings: widget.alarmSettings.copyWith(
+  //       dateTime: DateTime(snoozeDate.year, snoozeDate.month, snoozeDate.day,
+  //           snoozeDate.hour, snoozeDate.minute, 0, 0, 0),
+  //     ),
+  //   ).then((_) => Navigator.pop(context));
+  // }
+
+  // Future<void> stopAlarm() async {
+  //   late DateTime dateTime;
+  //   final int day = widget.alarmSettings.notificationBody.isEmpty ? 1 : 365;
+  //   debugPrint('Day: $day');
+  //   // if (originalDateTime != null) {
+  //   //   dateTime = originalDateTime!.add(Duration(days: day));
+  //   // } else {
+  //   //   dateTime = widget.alarmSettings.dateTime.add(Duration(days: day));
+  //   // }
+  //   dateTime = widget.alarmSettings.dateTime.add(Duration(days: day));
+
+  //   await Alarm.stop(widget.alarmSettings.id);
+  //   await Alarm.set(
+  //     alarmSettings: widget.alarmSettings.copyWith(
+  //         dateTime: dateTime,
+  //         notificationTitle: DateFormat(
+  //                 widget.alarmSettings.notificationTitle.length > 8
+  //                     ? 'dd MMM - hh:mm aa'
+  //                     : 'hh:mm aa')
+  //             .format(dateTime)),
+  //   ).then((value) async {
+  //     await setData(
+  //             widget.alarmSettings.id.toString(), dateTime.toIso8601String())
+  //         .then((value) => Navigator.pop(context));
+  //   });
+  // }
 
   Future<void> stopAlarm() async {
-    late DateTime dateTime;
-    final int day = widget.alarmSettings.notificationBody.isEmpty ? 1 : 365;
-    debugPrint('Day: $day');
-    // if (originalDateTime != null) {
-    //   dateTime = originalDateTime!.add(Duration(days: day));
-    // } else {
-    //   dateTime = widget.alarmSettings.dateTime.add(Duration(days: day));
-    // }
-    dateTime = widget.alarmSettings.dateTime.add(Duration(days: day));
-
-    await Alarm.stop(widget.alarmSettings.id);
-    await Alarm.set(
-      alarmSettings: widget.alarmSettings.copyWith(
-          dateTime: dateTime,
-          notificationTitle: DateFormat(
-                  widget.alarmSettings.notificationTitle.length > 8
-                      ? 'dd MMM - hh:mm aa'
-                      : 'hh:mm aa')
-              .format(dateTime)),
-    ).then((value) async {
-      await setData(
-              widget.alarmSettings.id.toString(), dateTime.toIso8601String())
-          .then((value) => Navigator.pop(context));
-    });
+    await Alarm.stop(widget.alarmSettings.id)
+        .then((value) => Navigator.pop(context));
   }
 }

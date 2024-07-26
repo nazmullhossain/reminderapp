@@ -106,12 +106,19 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
         return null;
       }
     }
-
     final int random = Random().nextInt(10000);
     final int id = DateTime.now().millisecondsSinceEpoch % 10000;
     final int uniqueId = id + random;
-    final title = DateFormat('hh:mm aa').format(date);
-    debugPrint('title: $title');
+
+    final DateTime currentDate = DateTime.now();
+    if (currentDate.day == date.day &&
+        currentDate.month == date.month &&
+        currentDate.year == date.year) {
+      title = DateFormat('hh:mm aa').format(date);
+    } else {
+      title = DateFormat('hh:mm aa - dd MMM, yyyy').format(date);
+    }
+    debugPrint('title:::::::: $title');
 
     final alarmSettings = AlarmSettings(
       id: uniqueId,
@@ -124,7 +131,8 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
       notificationBody: note.text,
     );
     savingDateList.add(SavingDateModel(
-        id: uniqueId, savingDateTime: DateFormat('dd MMM').format(date)));
+        id: uniqueId,
+        savingDateTime: DateFormat('dd MMM, yyyy').format(DateTime.now())));
 
     //Save original date time
     await setData(uniqueId.toString(), date.toIso8601String());

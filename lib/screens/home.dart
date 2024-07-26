@@ -125,7 +125,11 @@ class _AlarmHomeScreenState extends State<AlarmHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppString.appName),
+        backgroundColor: AppColor.primaryColor,
+        title: const Text(
+          AppString.appName,
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
         actions: [
           if (selectMode == true)
