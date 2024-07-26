@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:alarm/alarm.dart';
-import 'package:alarm/model/alarm_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:parsed_readmore/parsed_readmore.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -135,7 +134,7 @@ class _AlarmHomeScreenState extends State<AlarmHomeScreen> {
           if (selectMode == true)
             IconButton(
                 onPressed: deleteSelectedAlarm,
-                icon: const Icon(Icons.delete_outline, color: Colors.red))
+                icon: const Icon(Icons.delete_outline, color: Colors.white))
         ],
       ),
       body: _bodyUI(),

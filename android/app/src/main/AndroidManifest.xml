@@ -16,7 +16,7 @@
     <application
         android:label="Notepad Alarm"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
         <service android:name="com.gdelataillade.alarm.services.NotificationOnKillService" />
