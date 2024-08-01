@@ -18,6 +18,7 @@ class AlarmEditScreen extends StatefulWidget {
 
 class _AlarmEditScreenState extends State<AlarmEditScreen> {
   final TextEditingController note = TextEditingController();
+  final FocusNode noteFocusNode = FocusNode();
   DateTime? selectedDate;
   late TimeOfDay? selectedTime;
   late bool loopAudio;
@@ -28,10 +29,12 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
   late String body;
   final AssetsAudioPlayer audioPlayer = AssetsAudioPlayer();
   List<SavingDateModel> savingDateList = [];
+  late bool isAlarm;
 
   @override
   void initState() {
     super.initState();
+    noteFocusNode.requestFocus();
     final DateTime dateTime = DateTime.now().add(const Duration(minutes: 1));
     selectedTime = TimeOfDay(hour: dateTime.hour, minute: dateTime.minute);
     loopAudio = true;
@@ -58,6 +61,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
   }
 
   Future<void> pickTime() async {
+    noteFocusNode.unfocus();
     await showTimePicker(
       initialTime: TimeOfDay.fromDateTime(selectedDate ?? DateTime.now()),
       context: context,
@@ -69,6 +73,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
   }
 
   Future<void> pickDate() async {
+    noteFocusNode.unfocus();
     await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -79,12 +84,12 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
 
   Future<AlarmSettings?> buildAlarmSettings() async {
     DateTime date = selectedDate ?? DateTime.now();
+    final DateTime currentDate = DateTime.now();
+
+    // Add selected time
     if (selectedTime != null) {
       setState(() {
         date = date.copyWith(
-          year: date.year,
-          month: date.month,
-          day: date.day,
           hour: selectedTime!.hour,
           minute: selectedTime!.minute,
           second: 0,
@@ -94,6 +99,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
       });
     }
 
+    // Check previous alarm
     final List<AlarmSettings> alarms = Alarm.getAlarms();
     for (int i = 0; i < alarms.length; i++) {
       if (alarms[i].dateTime.year == date.year &&
@@ -105,20 +111,34 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
         return null;
       }
     }
-    final int random = Random().nextInt(10000);
-    final int id = DateTime.now().millisecondsSinceEpoch % 10000;
-    final int uniqueId = id + random;
 
-    final DateTime currentDate = DateTime.now();
-    if (currentDate.day == date.day &&
-        currentDate.month == date.month &&
-        currentDate.year == date.year) {
+    // If selected date isBefore of the current-date then the alarm added for the next day
+    if (date.isBefore(currentDate)) {
+      date = date.add(const Duration(days: 1));
+    }
+
+    // Check Alarm or not
+    if (selectedDate == null) {
+      isAlarm = true;
+    } else {
+      isAlarm = false;
+    }
+
+    if (isAlarm) {
       title = DateFormat('hh:mm aa').format(date);
     } else {
       title = DateFormat('hh:mm aa - dd MMM, yyyy').format(date);
     }
-    debugPrint('title:::::::: $title');
 
+    debugPrint('title:::::::: $title');
+    debugPrint('isAlarm:::::::: $isAlarm');
+
+    // Create unique id
+    final int random = Random().nextInt(10000);
+    final int id = DateTime.now().millisecondsSinceEpoch % 10000;
+    final int uniqueId = id + random;
+
+    // Set alarm data
     final alarmSettings = AlarmSettings(
       id: uniqueId,
       dateTime: date,
@@ -129,19 +149,26 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
       notificationTitle: title,
       notificationBody: note.text,
     );
+
     savingDateList.add(SavingDateModel(
         id: uniqueId,
-        savingDateTime: DateFormat('dd MMM, yyyy').format(DateTime.now())));
+        savingDateTime: DateFormat('dd MMM, yyyy').format(currentDate),
+        isAlarm: isAlarm));
 
-    //Save original date time
+    // Save original date-time
     await setData(uniqueId.toString(), date.toIso8601String());
-    //save alarm saving date time
+
+    // Save alarm date-time
     await setData(
         LocalStorageKey.savingDateKey, savingDateModelToJson(savingDateList));
     return alarmSettings;
   }
 
   Future<void> saveAlarm() async {
+    if (note.text.isEmpty) {
+      showToast('Write a note');
+      return;
+    }
     final AlarmSettings? settings = await buildAlarmSettings();
     if (settings != null) {
       await Alarm.set(alarmSettings: settings).then((res) {
@@ -188,7 +215,8 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
 
           TextField(
             controller: note,
-            textCapitalization: TextCapitalization.words,
+            focusNode: noteFocusNode,
+            textCapitalization: TextCapitalization.sentences,
             maxLines: 3,
             minLines: 1,
             decoration: InputDecoration(
@@ -238,7 +266,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Sound',
+                'Ringtone',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               StreamBuilder(
@@ -298,7 +326,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Repeat',
+                'Repeat audio',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               Switch(

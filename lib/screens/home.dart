@@ -24,7 +24,7 @@ class _AlarmHomeScreenState extends State<AlarmHomeScreen> {
   List<int> selectedItems = [];
   bool selectMode = false;
 
-  static List<SavingDateModel> savingDateList = [];
+  List<SavingDateModel> savingDateList = [];
 
   @override
   void initState() {
@@ -141,11 +141,17 @@ class _AlarmHomeScreenState extends State<AlarmHomeScreen> {
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(10),
         child: FloatingActionButton(
-          backgroundColor: AppColor.primaryColor,
-          elevation: 0.0,
-          onPressed: () => navigateToAlarmScreen(null),
-          child: const Icon(Icons.add, color: Colors.white, size: 40),
-        ),
+            backgroundColor: Colors.white,
+            elevation: 0.0,
+            onPressed: () => navigateToAlarmScreen(null),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              child: Image.asset(
+                'assets/images/logo.png',
+                height: 56,
+                width: 56,
+              ),
+            )),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
@@ -194,7 +200,9 @@ class _AlarmHomeScreenState extends State<AlarmHomeScreen> {
                           ParsedReadMore(
                             alarms[index].notificationBody.isNotEmpty
                                 ? alarms[index].notificationBody
-                                : 'Alarm',
+                                : isAlarm(alarms[index].id)
+                                    ? 'Alarm'
+                                    : 'N/A',
                             trimLength: 100,
                             trimCollapsedText: 'more',
                             trimExpandedText: 'less',
@@ -276,5 +284,16 @@ class _AlarmHomeScreenState extends State<AlarmHomeScreen> {
       }
     }
     return savingDate;
+  }
+
+  bool isAlarm(int alarmId) {
+    late bool isAlarm;
+    for (int i = 0; i < savingDateList.length; i++) {
+      if (savingDateList[i].id == alarmId) {
+        isAlarm = savingDateList[i].isAlarm ?? true;
+        break;
+      }
+    }
+    return isAlarm;
   }
 }

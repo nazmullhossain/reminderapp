@@ -2,6 +2,7 @@ import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import '../model/saving_date_model.dart';
 import '../utils/local_storage.dart';
 
 class AlarmRingScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class AlarmRingScreen extends StatefulWidget {
 class _AlarmRingScreenState extends State<AlarmRingScreen> {
   late DateTime? originalDateTime;
   int powerButtonCounter = 0;
+  List<SavingDateModel> savingDateList = [];
 
   @override
   void initState() {
@@ -105,11 +107,53 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
     );
   }
 
+  Future<void> getSavingDateList() async {
+    final loginResponseFromLocal = await getData(LocalStorageKey.savingDateKey);
+    if (loginResponseFromLocal != null) {
+      savingDateList = savingDateModelFromJson(loginResponseFromLocal);
+    }
+  }
+
+  bool getIsAlarm(int alarmId) {
+    late bool isAlarm;
+    for (int i = 0; i < savingDateList.length; i++) {
+      if (savingDateList[i].id == alarmId) {
+        isAlarm = savingDateList[i].isAlarm ?? true;
+        break;
+      }
+    }
+    return isAlarm;
+  }
+
+  Future<void> stopAlarm() async {
+    // Stop the current alarm
+    await Alarm.stop(widget.alarmSettings.id);
+
+    await getSavingDateList();
+    late DateTime dateTime;
+    final bool isAlarm = getIsAlarm(widget.alarmSettings.id);
+    final int day = isAlarm ? 1 : 365;
+
+    if (originalDateTime != null) {
+      dateTime = originalDateTime!.add(Duration(days: day));
+    } else {
+      dateTime = widget.alarmSettings.dateTime.add(Duration(days: day));
+    }
+
+    await Alarm.set(
+      alarmSettings: widget.alarmSettings.copyWith(
+          dateTime: dateTime,
+          notificationTitle:
+              DateFormat(isAlarm ? 'hh:mm aa' : 'hh:mm aa - dd MMM, yyyy')
+                  .format(dateTime)),
+    ).then((value) => Navigator.pop(context));
+    debugPrint('${isAlarm ? 'Alarm' : 'Event'} updated::::::::::::::::::');
+  }
+
   // Future<void> snoozeAlarm() async {
   //   final DateTime snoozeDate = DateTime.now().add(const Duration(minutes: 5));
   //   final List<AlarmSettings> alarms = Alarm.getAlarms();
   //   alarms.sort((a, b) => a.dateTime.isBefore(b.dateTime) ? 0 : 1);
-
   //   for (int i = 0; i < alarms.length; i++) {
   //     if (alarms[i].dateTime.year == snoozeDate.year &&
   //         alarms[i].dateTime.month == snoozeDate.month &&
@@ -130,34 +174,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
   // }
 
   // Future<void> stopAlarm() async {
-  //   late DateTime dateTime;
-  //   final int day = widget.alarmSettings.notificationBody.isEmpty ? 1 : 365;
-  //   debugPrint('Day: $day');
-  //   // if (originalDateTime != null) {
-  //   //   dateTime = originalDateTime!.add(Duration(days: day));
-  //   // } else {
-  //   //   dateTime = widget.alarmSettings.dateTime.add(Duration(days: day));
-  //   // }
-  //   dateTime = widget.alarmSettings.dateTime.add(Duration(days: day));
-
-  //   await Alarm.stop(widget.alarmSettings.id);
-  //   await Alarm.set(
-  //     alarmSettings: widget.alarmSettings.copyWith(
-  //         dateTime: dateTime,
-  //         notificationTitle: DateFormat(
-  //                 widget.alarmSettings.notificationTitle.length > 8
-  //                     ? 'dd MMM - hh:mm aa'
-  //                     : 'hh:mm aa')
-  //             .format(dateTime)),
-  //   ).then((value) async {
-  //     await setData(
-  //             widget.alarmSettings.id.toString(), dateTime.toIso8601String())
-  //         .then((value) => Navigator.pop(context));
-  //   });
+  //   await Alarm.stop(widget.alarmSettings.id)
+  //       .then((value) => Navigator.pop(context));
   // }
-
-  Future<void> stopAlarm() async {
-    await Alarm.stop(widget.alarmSettings.id)
-        .then((value) => Navigator.pop(context));
-  }
 }

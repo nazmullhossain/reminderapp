@@ -10,20 +10,24 @@ String savingDateModelToJson(List<SavingDateModel> data) =>
 class SavingDateModel {
   final int? id;
   final String? savingDateTime;
+  final bool? isAlarm;
 
   SavingDateModel({
     this.id,
     this.savingDateTime,
+    this.isAlarm,
   });
 
   factory SavingDateModel.fromJson(Map<String, dynamic> json) =>
       SavingDateModel(
         id: json["id"],
         savingDateTime: json["savingDateTime"],
+        isAlarm: json["isAlarm"],
       );
 
   Map<String, dynamic> toJson() => {
         "id": id,
         "savingDateTime": savingDateTime,
+        'isAlarm': isAlarm,
       };
 }
