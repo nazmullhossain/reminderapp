@@ -30,4 +30,12 @@ class SavingDateModel {
         "savingDateTime": savingDateTime,
         'isAlarm': isAlarm,
       };
+
+
+
+     // Map<String, dynamic> toJson() => {
+     //    "id": id,
+     //    "savingDateTime": savingDateTime,
+     //    'isAlarm': isAlarm,
+     //  };
 }
