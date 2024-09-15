@@ -22,6 +22,7 @@ class _AlarmEditScreenState extends State<AlarmEditScreen> {
   DateTime? selectedDate;
   late TimeOfDay? selectedTime;
   late bool loopAudio;
+  late bool loopVideo;
   late bool vibrate;
   late double? volume;
   late String assetAudio;
