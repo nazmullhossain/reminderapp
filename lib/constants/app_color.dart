@@ -4,6 +4,7 @@ class AppColor {
   static const Color primaryColor = Color(0xff00A650);
   static const int primarySwatch = 0xff00A650;
   static final Color textColor = Colors.grey.shade800;
+  static final Color textColors = Colors.grey.shade800;
 
   static const Map<int, Color> primaryColorMap = {
     50: Color.fromRGBO(0, 166, 80, .1),
